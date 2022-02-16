@@ -1,0 +1,1071 @@
+---
+title: "Capstone Cyclistics Bikeshare Rides Analysis"
+author: "Sarit Neter"
+date: "1/19/2022"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: vignette
+    # font_adjustment: -10
+    fig_caption: true
+    fig_align: center;
+    toc: true
+    toc_depth: 3
+---
+
+<!-- Overriding some HTML elements -->
+<style type="text/css">
+
+body {  /* Normal  */
+  font-size: 14px;
+}
+p {  /* paragraph */ 
+  font-size: 14px;
+}
+table {  /* Table  */
+  font-size: 12px;
+}
+td {  /* table column */
+  white-space:nowrap;
+}
+th {  /* table header */
+  font-size: 12px;
+}
+thead tfoot {
+  font-size: 12px;
+}
+ul li {  /* list item */
+  font-size: 14px;
+}
+h1 { /* Header 1 */
+  font-size: 28px;
+  color: DarkRed;
+  font-weight: bold;
+}
+h2 { /* Header 2 */
+    font-size: 22px;
+    font-weight: bold;
+}
+h3 { /* Header 3 */
+  font-size: 18px;
+}
+h4 { /* Header 4 */
+  font-size: 18px;
+  font-style: italic;
+}
+code.r{ /* Code block */
+    font-size: 12px;
+}
+pre { /* Code block - determines code spacing between lines */
+    font-size: 12px;
+}
+.center {
+  text-align: center;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Background
+
+## What
+
+This document contains the data analysis steps performed, as well as the presentation for the Google Data Analytics course.  
+Project chosen: Capstone case study #1:  
+How Does Cyclistic Bike-Share Company Navigate Speedy Success? 
+
+## Scenario
+
+Cyclistic is a bike-share company in Chicago. The company marketing director believes the company’s future success depends on maximizing the number of annual memberships. 
+Therefore, the marketing analysts team wants to understand how casual riders and annual members use Cyclistic bikes differently. From these insights, the team will design a new marketing strategy to convert casual riders into annual members. 
+Cyclistic executives must approve the recommendations, so recommendations must be backed up with compelling data insights and professional data visualizations - all of which shall be presented here.
+
+## About the company
+
+In 2016, Cyclistic launched a successful bike-share offering. Since then, the program has grown to a fleet of 5,824 bicycles that are geo-tracked and locked into a network of 692 stations across Chicago. The bikes can be unlocked from one station and returned to any other station in the system anytime.
+
+Until now, Cyclistic’s marketing strategy relied on building general awareness and appealing to broad consumer segments. One approach that helped make these things possible was the flexibility of its pricing plans: single-ride passes, full-day passes, and annual memberships. Customers who purchase single-ride or full-day passes are referred to as casual riders. Customers who purchase annual memberships are Cyclistic members.
+
+Cyclistic’s finance analysts have concluded that annual members are much more profitable than casual riders. Although the pricing flexibility helps Cyclistic attract more customers, the Marketing Director believes that maximizing the number of annual members will be key to future growth. Rather than creating a marketing campaign that targets all-new customers, the director believes there is a very good chance to convert casual riders into members. The director notes that casual riders are already aware of the Cyclistic program and have chosen Cyclistic for their mobility needs.
+
+The director has set a clear goal: Design marketing strategies aimed at converting casual riders into annual members. In order to do that, however, the marketing analyst team needs to better understand how annual members and casual riders differ, why casual riders would buy a membership, and how digital media could affect their marketing tactics. The Marketing Director and her team are interested in analyzing the Cyclistic historical bike trip data to identify trends.
+
+# Analysis Process
+
+## ASK 
+
+### Problem Definition
+Cyclistic limitation on profitability due to not enough annual members.
+At the moment the company has sufficient total riders however significant percentage of these riders are casual.
+
+### The Why  
+- Why are casual riders not converting to annual membership?  
+
+- How do causal riders differ from member riders?  
+
+### Business Task  
+- Increase membership number by converting casual riders to members.  
+
+- Extract insights from past data on how do casual riders utilize the shared bikes differently than member riders to provide ideas on what strategy may help in converting causal riders to member ones. 
+
+### Stakeholders  
+- **Director of Marketing** who is responsible for the design and implementation of new initiatives and marketing campaign and thus must be presented with data backed insights and recommendations.  
+- **The Marketing Analytics Team** who collaborates on all stages of the data analytics process. It provides information and critique; and needs to informed throughout the process.  
+- **The Executive Team** who must approve the recommendations and the proposed marketing program and must be presented with detailed analysis covering all fundamentals.  
+
+*Note* - Recommendation shall be provided. However it is beyond this analysis process to design a marketing campaign to realize the recommendations. 
+
+## Preperation
+
+### Data Source
+The datasets to be used for the analysis are provided by the Cyclistic company. It is a collections of past observations for a little more than a year of all rides. 
+Rides datasets include attributes such as:  
+
+- unique ride ID
+- start and end locations including plain-English names and coordinates. 
+- date and time. 
+- the type of rider whether member or casual.  
+
+Station datasets includes station information such as:  
+
+- unique station ID
+- plain location as well as coordinates,
+- capacity  
+
+Ride Observation *DO NOT* include any information about the riders themselves.  
+
+### Data Organization
+All datasets are provided in CSV spreadsheet format.
+The datasets containing the ride information are organized in long format where each unique ride is contained in a single row comprises all the ride observation attributes (mentioned above).
+The dataset containing station information is also organized in long format where for each unique station all the station attributes are contained in a single row.
+
+### Data Utilized
+12 datasets for 12 consecutive months starting with the one for December 2020 and ending with the one for November 2021; and a station information dataset were retrieved from https://divvy-tripdata.s3.amazonaws.com/index.html on December 27th, 2022. 
+
+### Data Location
+All datasets used were downloaded from the provided URL to the analysis local machine.
+
+### Data Credibility, Liscening, Security, privacy and accessability
+- The data are provided by Google Inc. via the official Coursera Inc. site and the pages dedicated to the Google Data Analytics course. 
+- URL for the data is provided to course attendees who must log into the Coursera site and are verified by Coursera.
+
+- All data used for the analysis were downloaded to the analyst local machine in a private office.
+Local machine is not connected to any public network; it requires log-in credentials; and is protected by real-time firewall and virus protection.
+Thus data are kept secured via the conditions described above.
+
+- Datasets do not contain rider personal information of any kind or rider identifiers such as age, sex and address. Full anonymity is maintained. 
+
+- Licensing is provided from Coursera/Google and the source of the data is clearly indicated throughout the presentation. 
+
+### Sufficiency of Data and Problems with Data  
+- **Data Time Period** is reasonably sufficient since 12 months covers different weather and holiday seasons through the year. I must note though that 2021 was not a typical year due to the Covid-19 pandemic.
+- **Ride Date Elements** is somewhat sufficient. 
+Date-Time for all rides is provided thus indicators such ride duration or peak times with respect to member-type can be extracted. 
+However some records containing start date later than end date are present and are omitted due to lack of sufficient information required to perform correction such as: equalize the month to match start and end or perhaps flip the two. 
+However, since the number of observations with these errors is negligible in comparison to number observations without those - omitting these appears as best choice.
+- **Station Location** for most rides is provided thus indicators such as preferred location with respect to rider type can be extracted. 
+However some ride observations are missing start and/or end station name (i.e. plain location). Unfortunately the single dataset containing the station information does not include information for all possible latitude/longitudes in the ride observation records. Hence filling in this info utilizing the station dataset is not possible. 
+- **Missing Information** that may shed more light on the difference between riders type such as:  
+- unique rider ID - helps to identify returning riders. 
+- rider age group - give hints regarding rides pattern among for example retirees vs workers vs students.   
+- city of residency - allows to distinguish between residence who are more likely to be motivated to purchase membership versus temporary visitors.  
+- Furthermore, since we know nothing about the riders - it is impossible to ascertain whether the data are somewhat population biased.  
+
+### Preparation Steps
+
+#### Installing useful packages needed for the analysis process  
+- tidyverse - add more on top of basic data manipulation.
+- here - better path management for fining files.
+- magrittre - better code readability pipes.
+- janitor - extra functionality for cleaning data.
+- plyr - splitting and merging large data.
+- lubridate - extra functionality for handling date and time.
+- ggeasy - additional plot formatting for ggplot2.
+- ggsci - additional color palettes.
+- leaflet - geo mapping.
+- gesphere - in case geo calculations are required.
+- htmltools - handling html widgets such as plots and tables.  
+- plotly - for making plots interactive.  
+- DT - for making tables interactive.  
+
+
+```{r, include = FALSE}
+# The basic for data manipulation
+install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+library(tidyverse)
+
+# Additional formatting ggplot2
+install.packages("ggeasy", repos = "http://cran.us.r-project.org")
+library(ggeasy)
+
+# Allow more text formatting such as HTML
+install.packages("ggtext", repos = "http://cran.us.r-project.org")
+library(ggtext)
+
+# Color Palette
+install.packages("ggsci", repos = "http://cran.us.r-project.org")  
+library(ggsci)
+
+# For mapping
+install.packages("leaflet", repos = "http://cran.us.r-project.org")
+library( leaflet )
+install.packages("geosphere", repos = "http://cran.us.r-project.org")                
+library(geosphere) 
+install.packages("magrittr", repos = "http://cran.us.r-project.org")
+library( magrittr )
+install.packages("htmltools", repos = "http://cran.us.r-project.org")
+library(htmltools)
+
+# For cleaning data
+install.packages("janitor", repos = "http://cran.us.r-project.org")
+library(janitor)
+
+# Extra date manipulation
+install.packages("lubridate", repos = "http://cran.us.r-project.org")
+library(lubridate)
+
+# For merging and splitting large data
+install.packages("plyr", repos = "http://cran.us.r-project.org")
+library(plyr)
+
+# For better (faster) tables
+install.packages("data.table", repos = "http://cran.us.r-project.org")
+library(data.table)
+
+# For easy finding of files
+install.packages("here", repos = "http://cran.us.r-project.org")
+library(here)
+
+# For making interactive presentation
+install.packages("plotly", repos = "http://cran.us.r-project.org") # plots
+library(plotly)
+install.packages("DT", repos = "http://cran.us.r-project.org") # tables
+library(DT)
+# Save the interactive output generated from plotly and DT as HTML widgets 
+# and then insert widgets in desired place using code, <iframe src="/path/name.html"></iframe>.
+install.packages("htmlwidgets", repos = "http://cran.us.r-project.org")  
+library(htmlwidgets)
+
+```
+
+```{r, echo=FALSE, message = FALSE, warning=FALSE, results='hide'}
+# Clear R Studio environment from all objects including hidden ones.
+rm(list = ls(all.names = TRUE)) 
+# Free up memory and report the memory usage.
+gc(verbose = FALSE) 
+
+# Some useful preparations
+r_default_peach <- "#F8766D" 
+dark_peach <- "#CA463D"
+r_default_cyan <- "#00BFC4"
+dark_cyan <- "#005F62"
+```
+####  &nbsp;    
+#### Loading 12 consecutive months ride observations datasets and create a single complete year of ride observation frame
+
+```{r, echo=TRUE, message = FALSE, warning=FALSE}
+# Create year ride observation frame
+####################################
+# Load rides data from the bicycle trips CSV files 
+# All file from CSV sub-directory are loaded and their full path stored in a list
+all_rides <- list.files(path = "./CSV/Ride Data", pattern = "*tripdata.csv", full.names = TRUE) %>%  
+  # repeatedly apply read_csv to all files
+  lapply(read_csv) %>% 
+  # Combine data sets into one data set 
+  bind_rows                                                       
+# Let's take a look at few rows of data, set size and column headers
+
+glimpse(all_rides)
+```
+#### &nbsp;     
+#### Creating station info frame  
+- Loading Stations dataset.  
+- Loading quarter rides dataset.   
+- When available, extracting additional stations - not provided in the Station Dataset - from Ride Observations Datasets.  
+- Combining all stations to one Available Stations info Frame.  
+
+```{r, echo=TRUE, message = FALSE, warning=FALSE}
+# Create station info frame from all available data to try to be used later
+###########################################################################
+# Load stations info from the stations CSV (single) file
+available_stations <- read_csv("./CSV/Station Data/Divvy_Stations_2014-Q3Q4.csv") %>% 
+  select("id", "name", "latitude", "longitude")
+
+# Load the quarter data, extract stations ad combine with station info so far
+Divvy_Trips_2020_Q1 <- read_csv("./CSV/Station Data/Divvy_Trips_2020_Q1.csv")
+
+# extract start station info
+temp <- Divvy_Trips_2020_Q1 %>% 
+  select(start_station_id, start_station_name, start_lat, start_lng) %>% 
+  distinct(start_station_name, .keep_all= TRUE) %>% 
+  setNames(c("id", "name", "latitude", "longitude")) %>% 
+  na.omit()
+
+# combine
+available_stations <- available_stations %>% rbind(temp) %>% 
+  distinct(name, .keep_all= TRUE)
+
+# extract end station info
+temp <- Divvy_Trips_2020_Q1 %>% 
+  select(end_station_id, end_station_name, end_lat, end_lng) %>% 
+  distinct(end_station_name, .keep_all= TRUE) %>% 
+  setNames(c("id", "name", "latitude", "longitude")) %>% 
+  na.omit()
+
+# combine
+available_stations <- available_stations %>% rbind(temp) %>% 
+  distinct(name, .keep_all= TRUE)
+
+# extract start station info from all rides frame
+temp <- all_rides %>% 
+  select(start_station_id, start_station_name, start_lat, start_lng) %>% 
+  distinct(start_station_name, .keep_all= TRUE) %>% 
+  setNames(c("id", "name", "latitude", "longitude")) %>% 
+  na.omit()
+
+# combine
+available_stations <- available_stations %>% rbind(temp) %>% 
+  distinct(name, .keep_all= TRUE)
+
+# extract end station info from all rides frame
+temp <- all_rides %>% 
+  select(end_station_id, end_station_name, end_lat, end_lng) %>% 
+  distinct(end_station_name, .keep_all= TRUE) %>% 
+  setNames(c("id", "name", "latitude", "longitude")) %>% 
+  na.omit()
+
+# combine into the "final" station info frame
+#############################################
+available_stations <- available_stations %>% rbind(temp) %>% 
+  distinct(name, .keep_all= TRUE) %>% 
+  na.omit() %>% 
+  arrange(name)
+```
+####  &nbsp;  
+#### Result - `r nrow(available_stations)` Distinct Stations  
+####  &nbsp;  
+
+I see that Cyclistic grew its station number from 692 specified when the project was created. 
+I also know that there are possibly more stations that are not specified in any dataset and fall into the NA category.  
+I considered filling in missing station names via the following process:    
+Calculating distances between coordinates lacking station names and the known stations, and selecting the closest station accordingly.  
+However the coordinates provided in observations that lack station names do not have sufficient accuracy (2 decimal points in stead of 6). Thus a station can not be unambiguously identified. 
+<center>
+##### &nbsp;  
+##### Available Stations Information Table
+</center>
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+datatable(available_stations, rownames = FALSE)
+```
+
+```{r, echo=FALSE, message = FALSE, warning=FALSE, results='hide'}
+# cleanup a bit
+rm(temp)
+gc(verbose = FALSE)
+```
+##### &nbsp;   
+## Cleaning
+
+### Replacing empty alphanumeric fields with NA 
+- Removing leading and trailing spaces from alphanumeric fields.
+- Replacing the empty values with NA. 
+- Recording how many NA values for essential variables are.
+
+```{r, echo=TRUE, message = FALSE, warning=FALSE}
+cleaned_rides <- all_rides %>%  
+  mutate(across(where(is.character), str_trim)) %>%
+  mutate(across(where(is.character), ~na_if(., "")))
+```
+
+```{r, echo=FALSE, message = FALSE, warning=FALSE, results='hide'}
+# cleanup a bit
+rm(all_rides)
+gc(verbose = FALSE)
+```
+ 
+#### Recording how many NA I have for essential attributes  
+```{r, echo=TRUE, message = FALSE, warning=FALSE}
+num_empty_start_station_name <- sum(is.na(cleaned_rides$start_station_name))
+num_empty_start_station_name_and_id <- sum(is.na(cleaned_rides$start_station_name) & 
+                                             is.na(cleaned_rides$start_station_id)    )
+num_empty_started_at <- sum(is.na(cleaned_rides$started_at))
+num_empty_ended_at <- sum(is.na(cleaned_rides$ended_at))
+```
+- Number of NA station names: `r num_empty_start_station_name`
+- Number of NA station names and ID: `r num_empty_start_station_name_and_id`
+- Number of NA trip starting coordinates: `r num_empty_started_at`
+- Number of NA trip ending coordinates: `r num_empty_ended_at`  
+
+Observations that do not have station names usually do not have station IDs as well other than `r (num_empty_start_station_name - num_empty_start_station_name_and_id)`. This difference is negligible.  
+
+I don't have missing coordinates so trips can be mapped if necessary.  
+
+### Removing dupplicate rides observations.  
+Each ride has unique ID so I can check for duplication on this attribute.
+```{r, echo=TRUE, message = FALSE, warning=FALSE}
+cleaned_rides <- distinct(cleaned_rides, ride_id, .keep_all= TRUE)
+
+num_cleaned_rides <- nrow(cleaned_rides)
+```
+### Filter records where trip start date-time is later than trip end date-time or either is NA  
+```{r, echo=TRUE, message = FALSE, warning=FALSE}
+# Let's count the dat-time error cases
+num_date_time_errors <- sum(is.na(cleaned_rides$started_at) | 
+                            is.na(cleaned_rides$ended_at) | 
+                            (cleaned_rides$ended_at <= cleaned_rides$started_at))
+```
+Most of the records have correct starting and ending date-time for each trip. 
+For `r round((num_date_time_errors * 100) / num_cleaned_rides, 2)`% that is not the case. In theory, I could have flipped start and end date-time attributes when the first is later than the latter. However, I decided not to do so since I do not know the source of the error (in real life situation I would have checked with the relevant people). Thus, I decided to eliminate these records from the analysis - luckily - their number is negligible.   
+```{r, echo=TRUE, message = FALSE, warning=FALSE}
+# Now filter out those records with date-time errors
+cleaned_rides <- filter(cleaned_rides, !is.na(started_at) & !is.na(ended_at) & 
+                                   (ended_at > started_at))
+```
+
+### Sorting the cleaned ride observations by trip start date-time from earliest to latest.  
+I verified no duplication of ride records, empty fields were handled and errors were corrected.
+```{r, echo=TRUE, message = FALSE, warning=FALSE}
+cleaned_rides <- arrange(cleaned_rides, started_at)
+
+num_cleaned_rides <- nrow(cleaned_rides)
+```
+  
+### `r prettyNum(num_cleaned_rides, big.mark = ',', scientific = FALSE)` Ride observation records can be used for analysis.  
+Note that `r prettyNum(sum(is.na(cleaned_rides$start_station_name)), big.mark = ',', scientific = FALSE)` ride observation records do not have trip start station name (`r round((num_empty_start_station_name * 100) / num_cleaned_rides)`%).  
+
+#### &nbsp;  
+
+<center>
+##### Rides Availabe Observations Table
+</center>  
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+datatable(cleaned_rides[1:10000, ], rownames = FALSE)
+```
+####  &nbsp;    
+## Analyzing  
+
+I will try to extract long term differences between <span style="color:#00BFC4">member</span> and   <span style="color:#F8766D">casual</span> riders.
+For example:  
+
+- How does the number of rides per specific time period compare?  
+- How does the average ride duration per specific time period compare?  
+- Is there a station location pattern for either type of rider?  
+- Do the different groups of riders prefer electric bicycle vs manual one?    
+
+For our analysis I will use the start trip location when I want to group by location. 
+
+### Calculate useful values and store in new columns  
+- Trip Start Month.  
+- Trip Start Day-of-the-Week.  
+- Trip Start Hour.  
+- Trip Duration in Minutes.  
+
+```{r, echo=TRUE, message = FALSE, warning=FALSE}
+# Note: data.table has its own wday function (R’s global scoping) 
+# so I work around it by prefixing the call to wday.
+cleaned_rides <- cleaned_rides %>%
+  mutate(started_at_date = lubridate::as_date(started_at),
+         started_at_month = lubridate::month(started_at, label = TRUE, abbr = FALSE),
+         started_at_week_day = lubridate::wday(started_at, label = TRUE, abbr = FALSE), 
+         started_at_hour = hms::as_hms(started_at),  # as time object
+         trip_duration_minutes = round(difftime(ended_at, started_at, units = "mins"), 2)
+  )
+glimpse(cleaned_rides) 
+```
+<center>  
+##### Rides Availabe Observations Table
+</center>  
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+datatable(cleaned_rides[1:1000, ], rownames = FALSE)  # fails on stack overflow...
+```
+#### &nbsp;   
+
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+sum_ride_duration_min <- sum(cleaned_rides$trip_duration_minutes) 
+average_ride_duration_min <- mean(cleaned_rides$trip_duration_minutes)
+std_all_ride_duration <- sd(cleaned_rides$trip_duration_minutes)
+all_ride_coef_of_variance <- as.numeric(std_all_ride_duration) / as.numeric(average_ride_duration_min)
+
+
+total_member_rides <- sum(cleaned_rides$member_casual == "member")  
+sum_member_ride_duration_min <-  sum(cleaned_rides$trip_duration_minutes[cleaned_rides$member_casual == "member"])  
+
+average_member_ride_min <- mean(cleaned_rides$trip_duration_minutes[cleaned_rides$member_casual == "member"])
+std_member_ride_duration <- sd(cleaned_rides$trip_duration_minutes[cleaned_rides$member_casual == "member"])
+member_ride_coef_of_variance <- as.numeric(std_member_ride_duration) / as.numeric(average_member_ride_min)
+
+
+total_casual_rides <- sum(cleaned_rides$member_casual == "casual")  
+sum_casual_ride_duration_min <-  sum(cleaned_rides$trip_duration_minutes[cleaned_rides$member_casual == "casual"])  
+average_casual_ride_min <- mean(cleaned_rides$trip_duration_minutes[cleaned_rides$member_casual == "casual"])  
+std_casual_ride_duration <- sd(cleaned_rides$trip_duration_minutes[cleaned_rides$member_casual == "casual"])
+casual_ride_coef_of_variance <- as.numeric(std_casual_ride_duration) / as.numeric(average_casual_ride_min)
+
+
+total_num_rides <- c(total_member_rides, total_casual_rides, num_cleaned_rides) 
+
+sum_ride_duration_minutes <- c(sum_member_ride_duration_min, sum_casual_ride_duration_min, sum_ride_duration_min)
+
+avg_ride_duration_minutes <- c(average_member_ride_min, average_casual_ride_min, 
+                               average_ride_duration_min) 
+
+std_ride_duration <- c(std_member_ride_duration, std_casual_ride_duration, std_all_ride_duration) 
+
+ride_duration_ceof_of_variance <- 
+  c(member_ride_coef_of_variance, casual_ride_coef_of_variance, all_ride_coef_of_variance) 
+
+summary_table <- data.frame(total_num_rides, 
+                            sum_ride_duration_minutes,
+                            round(avg_ride_duration_minutes, 2), 
+                            round(std_ride_duration, 2),
+                            round(ride_duration_ceof_of_variance, 2))
+
+rownames(summary_table) <- c('Member', 'Casual', 'All')
+colnames(summary_table) <- c('Total Rides', 'Total Rides Duration', 'Average Ride Duration (min)',
+                             'Ride Duration STD', 'Ride Duration CV')
+glimpse(summary_table)
+```
+### Prepare a starting trip station statistics and store it  
+**NOTE**  
+<i>All `r prettyNum(num_empty_start_station_name, big.mark = ',', scientific = FALSE)` unknown start trip stations out of the total `r prettyNum(num_cleaned_rides, big.mark = ',', scientific = FALSE)` (`r round((num_empty_start_station_name * 100) / num_cleaned_rides)`%) will be grouped into an NA category.  
+For rides lacking start trip station name, I tried to find the closest known station. I attempted to calculate distances from their start trip coordinates to any of the known stations. However that was proven to be impossible due to:   
+Reduced accuracy for coordinates supplied for rides without station name.  
+For this analysis I shall assume that a station pattern, if exists, can be extracted from the known stations only.</i>  
+
+```{r, echo=TRUE, message = FALSE, warning=FALSE}
+temp1 <- cleaned_rides %>% 
+  distinct(start_station_name, .keep_all= TRUE) %>% 
+  select(start_station_name, start_lat, start_lng) 
+
+# I use suppressWarning on min and max function so as not to get -Inf warning for 0 rides
+temp2 <- cleaned_rides %>%
+  dplyr::group_by(start_station_name) %>%
+  dplyr::summarise(total_rides = n(), 
+                   total_member_rides = sum(member_casual == "member"),
+                   total_casual_rides = sum(member_casual == "casual"),
+                   mean_duration_minutes_member = mean(trip_duration_minutes[member_casual == "member"], na.rm = TRUE), 
+                   mean_duration_minutes_casual = mean(trip_duration_minutes[member_casual == "casual"], na.rm = TRUE),
+                   min_duration_minutes_member = suppressWarnings(min(trip_duration_minutes[member_casual == "member"], na.rm = TRUE)), 
+                   min_duration_minutes_casual = suppressWarnings(min(trip_duration_minutes[member_casual == "casual"], na.rm = TRUE)),
+                   max_duration_minutes_member = suppressWarnings(max(trip_duration_minutes[member_casual == "member"], na.rm = TRUE)), 
+                   max_duration_minutes_casual = suppressWarnings(max(trip_duration_minutes[member_casual == "casual"], na.rm = TRUE))
+                   ) %>% 
+  mutate_all(function(x) ifelse(is.infinite(x), 0, x)) %>%
+  mutate_all(function(x) ifelse(is.nan(x), 0, x))
+
+station_coordinates <- merge(temp1, temp2, by = "start_station_name", sort = TRUE) %>% 
+  arrange(start_station_name)
+```
+<center>
+#### &nbsp;    
+##### Available Stations Ride Statistic Table
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+datatable(station_coordinates, rownames = FALSE)
+```
+</center>
+```{r, echo=FALSE, message = FALSE, warning=FALSE, results='hide'}
+# A bit of cleaning.
+rm(temp1)
+rm(temp2)
+gc()
+```
+
+#### &nbsp;   
+
+### Create "pivote-like" tables holding specific statistics  
+
+#### Daily ride statistics per rider type
+```{r, echo=TRUE, message = FALSE, warning=FALSE}
+daily_member_type_rides <- cleaned_rides %>% 
+  dplyr::group_by(started_at_date) %>%
+  dplyr::summarise(total_rides = n(), 
+                   total_member_rides = sum(member_casual == "member"),
+                   total_casual_rides = sum(member_casual == "casual"),
+                   mean_duration_minutes_member = mean(trip_duration_minutes[member_casual == "member"], na.rm = TRUE), 
+                   mean_duration_minutes_casual = mean(trip_duration_minutes[member_casual == "casual"], na.rm = TRUE),
+                   min_duration_minutes_member = suppressWarnings(min(trip_duration_minutes[member_casual == "member"], na.rm = TRUE)), 
+                   min_duration_minutes_casual = suppressWarnings(min(trip_duration_minutes[member_casual == "casual"], na.rm = TRUE)),
+                   max_duration_minutes_member = suppressWarnings(max(trip_duration_minutes[member_casual == "member"], na.rm = TRUE)), 
+                   max_duration_minutes_casual = suppressWarnings(max(trip_duration_minutes[member_casual == "casual"], na.rm = TRUE))
+  ) %>% 
+  mutate_all(function(x) ifelse(is.infinite(x), 0, x)) %>%
+  mutate_all(function(x) ifelse(is.nan(x), 0, x)) %>% 
+  # When grouping by datetime field it is restored in the new tibbles as double so
+  # let's reformat it as date
+  mutate(started_at_date = lubridate::as_date(started_at_date))
+```
+<center>
+##### &nbsp; 
+##### Daily Ride Statistic per Rider Type Table
+</center>
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+datatable(daily_member_type_rides, rownames = FALSE)
+```
+#### &nbsp;  
+#### Day-of-the-Week rides statistics per rider type  
+```{r, echo=TRUE, message = FALSE, warning=FALSE}
+month_day_member_type_rides <- ddply(cleaned_rides, c("started_at_month", "started_at_week_day", "member_casual"), summarise,
+               total_rides      = length(trip_duration_minutes),
+               avg_ride_minutes = round(mean(trip_duration_minutes), 2),
+               min_ride_minutes = min(trip_duration_minutes),
+               max_ride_minutes = max(trip_duration_minutes))
+```
+<center>
+##### &nbsp;  
+##### Month-Day Ride Statistic per Rider Type Table
+</center>
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+datatable(month_day_member_type_rides, rownames = FALSE)
+```
+####  &nbsp;  
+#### Station usage per member type
+```{r, echo=TRUE, message = FALSE, warning=FALSE}
+station_member_type_rides <- cleaned_rides %>% 
+  dplyr::group_by(start_station_name, member_casual) %>% 
+  dplyr::summarise(total_rides = n())
+```
+<center>
+##### &nbsp;  
+##### Trip Start Station Usage per Rider Type Table
+</center>
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+datatable(station_member_type_rides, rownames = FALSE) %>% 
+  formatStyle(columns = colnames(.), fontSize = '12px')
+```
+#### &nbsp;  
+#### Bicycle type usage per member type
+```{r, echo=TRUE, message = FALSE, warning=FALSE}
+# Note that I must specify the dplyr library for the summarise since plyr is installed after and have same functions
+ridetype_member_type_rides <- cleaned_rides %>% 
+  dplyr::group_by(rideable_type, member_casual) %>% 
+  dplyr::summarise(total_rides = n())
+```
+<center>
+##### &nbsp;  
+##### Bicycle Type Usage per Rider Type Table
+</center>  
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+datatable(ridetype_member_type_rides, rownames = FALSE, list(lengthChange = FALSE, info = FALSE, searching=FALSE, filtering='none', pageLength = 6, lengthMenu = 'None', paging = FALSE))
+```
+
+####  &nbsp;  
+## Visualize
+
+### Summary 
+<center>
+##### Available Ride Observation Summary Table
+</center>
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+datatable(summary_table,
+  options = list(lengthChange = FALSE, info = FALSE, searching=FALSE, filtering='none', pageLength = 3, lengthMenu = 'None', paging = FALSE))
+``` 
+
+### From the first summary I can already observe that:  
+- Casual riders spend almost twice the time ridding compared to member riders.  Yearly total by `r round(as.numeric(sum_casual_ride_duration_min) / as.numeric(sum_member_ride_duration_min), 2)` and average duration by `r round(as.numeric(average_casual_ride_min) / as.numeric(average_member_ride_min), 2)`.  
+- Total number of rides are similar for both groups with slightly higher (`r round((total_member_rides * 100) / num_cleaned_rides) - round((total_casual_rides * 100) / num_cleaned_rides)`%) for member riders.  
+- Ride duration varies significantly for Casual riders and it is quite low for member riders (Rate: `r round(casual_ride_coef_of_variance / member_ride_coef_of_variance, 2)`).  
+  
+### *Preliminary Hypothesis*      
+
+Repeated rides of similar duration may indicate business related purpose while varied and typically longer duration rides may indicate leisure purpose.  
+Where ride purpose categories are defined as:  
+
+- Business - regularly repeated rides to locations of mandatory purposes such as work and school.  
+- Leisure - longer duration, less regular and less frequent rides to non-mandatory purposes such as parks and lake shore; entertainment locations like theater, museums and libraries; family/friends visits and riding as exercise.  
+
+My hypothesis is that larger number of member group rides are of business purpose while the opposite is true for casual group rides.  
+
+Furthermore, since the number of casual rides is very close to the number of member rides, I can confirm that converting casual riders to membership does indeed make sense with the following caveat: 
+The datasets do not include rider-ID - only ride-ID - thus I do not know how many of the riders - especially casual ones - are repeated riders nor where they reside (that could be very different than the starting station proximity for out-of-town visitors).
+
+### Yearly trends of total rides and average ride durations for member and casual riders
+  
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+# Plotting the member type total rides daily for a whole year
+daily_rider_type_total_rides_plot <- daily_member_type_rides %>%  
+  ggplot(aes(x = started_at_date)) +
+  geom_line(aes(y = total_member_rides), color=r_default_cyan, alpha = 0.5) +
+  geom_smooth(aes(y = total_member_rides, color=dark_cyan)) + 
+  geom_line(aes(y = total_casual_rides), color=r_default_peach, alpha = 0.5) +
+  geom_smooth(aes(y = total_casual_rides, color=dark_peach)) + 
+
+  scale_color_manual(guide = 'legend', 
+                     name='Member Type',
+                     labels=c('member', 'casual'),
+                     values=c(dark_cyan, dark_peach)) + 
+  labs(x = "Date", y = "Total Rides",  
+       caption = "data downloaded from https://divvy-tripdata.s3.amazonaws.com/index.html (12-27-2021)") +
+  theme_minimal() + 
+  theme(legend.position = "none", legend.title = element_blank(), 
+        axis.text.x = element_text(angle = 75, vjust = 0.5, hjust=0.1)) +
+  scale_y_continuous(labels = scales::comma_format(big.mark = ',', decimal.mark = '.')) + 
+  scale_x_date(date_breaks = "months" , date_labels = "%b %y")
+
+# Plotting the member type average rides duration daily for a whole year
+daily_rider_type_avg_rides_plot <- daily_member_type_rides %>%  
+  ggplot(aes(x = started_at_date)) +
+  geom_line(aes(y = mean_duration_minutes_member), color=r_default_cyan, alpha = 0.5) +
+  geom_smooth(aes(y = mean_duration_minutes_member, color=dark_cyan)) + 
+  geom_line(aes(y = mean_duration_minutes_casual), color=r_default_peach, alpha = 0.5) +
+  geom_smooth(aes(y = mean_duration_minutes_casual, color=dark_peach)) + 
+  scale_color_manual(guide = 'legend', 
+                     name='Member Type',
+                     labels=c('member', 'casual'),
+                     values=c(dark_cyan, dark_peach)) + 
+  labs(x = "Date", y = "Average Duration in Minutes") +
+  theme_minimal() +
+  theme(legend.position = "none", legend.title = element_blank(), 
+        axis.text.x = element_text(angle = 75, vjust = 0.5, hjust=0.1)) +
+  scale_y_continuous(labels = scales::comma_format(big.mark = ',', decimal.mark = '.')) + 
+  scale_x_date(date_breaks = "months" , date_labels = "%b %y")
+
+p1 <- ggplotly(daily_rider_type_total_rides_plot) %>% 
+    style(hoverinfo = "none", traces = c(2, 3, 5, 6))
+
+p2 <- ggplotly(daily_rider_type_avg_rides_plot) %>% 
+    style(hoverinfo = "none", traces = c(2, 3, 5, 6))
+```
+<center>
+```{r, out.width = "100%", echo=FALSE, message = FALSE, warning=FALSE}
+subplot(p1, p2, nrows = 1, titleY = TRUE, titleX = TRUE, margin = 0.07, widths = c(0.5, 0.5)) %>%
+  layout(title = list(text = paste0('Daily Total Rides & Average Ride Duration by Rider Type',
+                                    '<sup>', 
+                                    '<br>', 
+                                    '<br>',
+                                    "<span style = 'color:#005F62'>member <b>-</b></span>", 
+                                    "<span style = 'color:#CA463D'>&nbsp;&nbsp;casual <b>-</b></span>",
+                                    '<br>', '<br>',                                    
+                                    '</sup>')), 
+         annotations = list(list(x = 0.2, y = 1.0, text = "Total Rides", xref = "paper", 
+                                 yref = "paper",  xanchor = "center",  yanchor = "bottom", 
+                                 showarrow = FALSE), 
+                            list(x = 0.8, y = 1.0, text = "Avergae Ride Duration", xref = "paper",
+                                 yref = "paper", xanchor = "center", yanchor = "bottom", 
+                                 showarrow = FALSE)),
+         scene = list(aspectmode = "manual", aspectratio=list(x=1,y=1)), 
+         margin = list(t = 150))
+```
+</center>
+
+#### &nbsp;  
+#### From the annual total number of rides and the avergage ride durations for member and casual riders I can extract the following trends:  
+- Daily number of rides increases significantly during the warmer months for both groups. Considering the city is Chicago - that is not surprising due to its harsh winters. 
+- Daily number of rides increases during the warmer months slightly more for member riders than for casual ones. 
+- Daily total number of rides is similar for both groups.  
+- Daily total number of rides has significantly higher variation among the casual riders.  
+- Daily total number of rides is reduced much more for the casual group during the cold months.
+- Members ride duration is typically much shorter than casual ride duration.   
+- Member ride duration stays similar throughout the year.  
+- Average ride duration increased during February 2021 for both groups. Perhaps it is related to weather conditions. This does not seem to have bearing on the differences between the two groups.    
+
+These trends support the hypothesis that leisure rides number is significantly higher for the casual group. It is logical that leisure rides vary in length and since they are not mandatory they occur less during harsh conditions.  
+
+#### &nbsp; 
+<center>
+### Examine 24-hours cycle differences between member riders and casual ones 
+</center>
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+hourly_member_type_rides_histogram <- cleaned_rides %>%
+  ggplot(aes(x = started_at_hour, fill = member_casual)) +
+  geom_histogram(position = 'identity', alpha = 0.4, bins = 24, boundary= -0.1) +
+  labs(x = "Hour", y = "Total Rides") +
+  theme_minimal() +
+  theme(legend.position = "bottom", legend.title = element_blank(), axis.text.x = element_text(angle = 75, vjust = 0.5, hjust = 0.1)) +
+  scale_y_continuous(labels = scales::comma_format(big.mark = ',', decimal.mark = '.')) + 
+  scale_x_time(breaks=hours(seq(0,24,1)), 
+               labels=c("midnight","1AM", "2AM", "3AM", "4AM", "5AM", "6AM",  "7AM", "8AM", "9AM", "10AM", "11AM", "noon", "1PM", "2PM", "3PM", "4PM", "5PM", "6PM", "7PM",  "8PM",  "9PM", "10PM", "11PM", "midnight"))
+
+```
+<center>
+```{r, out.width = "70%", fig.asp = 1, echo=FALSE, message = FALSE, warning=FALSE}
+ggplotly(hourly_member_type_rides_histogram) %>%
+  layout(title = list(text = paste0("Hourly Ride Distribution by Rider Type", '<br>')),
+         margin = list(t = 150),
+         legend = list(title = list(text = "Rider"), orientation = "h", x = 0.3, y = -0.2))
+```
+</center>
+#### &nbsp;  
+#### Examining the 24-hours number of rides cycle reveals:   
+Much higher increase in number of member rides is occurring during the rush-hours when people mostly ride to or from work or school. 
+This strengthens the hypothesis of leisure versus business rides proportion for casual versus member groups.    
+
+### Monthly differences between member riders and casual ones - is there a pattern?  
+
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+# Plotting the member type total rides per month
+month_member_type_rides_plot <- cleaned_rides %>%  
+  ggplot(aes(x = started_at_month, fill = member_casual)) +
+  geom_bar() +
+  labs(x = "Month", y = "Total Rides") +
+  theme_minimal() +
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 75, vjust = 0.5, hjust=0.1)) +
+  easy_remove_legend_title() + 
+  scale_y_continuous(labels = scales::comma_format(big.mark = ',', decimal.mark = '.'))
+
+p1 <- ggplotly(month_member_type_rides_plot)
+
+# Plotting the member type average ride duration per month
+month_member_type_mean_duration_plot <- cleaned_rides %>%  
+  ggplot(aes(x = started_at_month, y = trip_duration_minutes, fill = member_casual)) +
+  geom_bar(stat = "summary", fun = "mean") +
+  labs(x = "Month", y = "Average Ride Duration in Minutes", 
+       caption = "data downloaded from https://divvy-tripdata.s3.amazonaws.com/index.html (12-27-2021)") +
+  theme_minimal() +
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 75, vjust = 0.5, hjust=0.1)) +
+  easy_remove_legend_title() + 
+  scale_y_continuous(labels = scales::comma_format(big.mark = ',', decimal.mark = '.'))
+
+p2 <- ggplotly(month_member_type_mean_duration_plot)
+
+```
+<center>
+```{r, out.width = "100%", echo=FALSE, message = FALSE, warning=FALSE}
+subplot(style(p1, showlegend = FALSE), p2, nrows = 1, titleY = TRUE, titleX = TRUE, margin = 0.07, 
+        widths = c(0.5, 0.5)) %>%
+  layout(title = list(text = paste0('Monthly Total Rides & Average Ride Duration by Rider Type')), 
+         annotations = list(list(x = 0.2, y = 1.0, text = "Total Rides", xref = "paper", 
+                                 yref = "paper",  xanchor = "center",  yanchor = "bottom", 
+                                 showarrow = FALSE), 
+                            list(x = 0.8, y = 1.0, text = "Avergae Ride Duration", xref = "paper",
+                                 yref = "paper", xanchor = "center", yanchor = "bottom", 
+                                 showarrow = FALSE)),
+         scene = list(aspectmode = "manual", aspectratio=list(x=1,y=1)), 
+         margin = list(t = 150),
+         legend = list(title = list(text = "Rider"), orientation = "h", x = 0.4, y = -0.3))
+```
+</center>
+#### &nbsp;  
+#### Monthly total rides & avergage ride duration reveal the following trends:  
+- Indeed, number of rides for both groups increases significantly as the year progresses towards the summer and decreases as it progresses towards the quite harsh Chicago winter.  
+- However - number of rides for the casual group decreases more than for the member group during the cold months. Makes sense for leisure rides that can be skipped during the cold weather.  
+- Casual rides average duration increases during the warm months much more than for the member group (the latter stays similar throughout the year).  
+Casual riders ride more for leisure and hence increase ride duration during the warmer months while member riders ride more for business thus ride duration is more constant. 
+- February has the highest ride duration average though lower number of rides. Perhaps this indicates that weather condition might be the culprit. However this doesn't seem to have bearing on the analysis.   
+
+### Day-of-the-Week differences between member riders and casual ones. Is there a daily patterns?
+
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+# Plotting the member type total rides per week day
+day_member_type_rides_plot <- cleaned_rides %>%  
+  ggplot(aes(x = started_at_week_day, fill = member_casual)) +
+  geom_bar() +
+  labs(x = "Week Day", y = "Total Rides") +
+  theme_minimal() +
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 75, vjust = 0.5, hjust=0.3)) +
+  easy_remove_legend_title() + 
+  scale_y_continuous(labels = scales::comma_format(big.mark = ',', decimal.mark = '.'))
+
+p1 <- ggplotly(day_member_type_rides_plot)
+
+# Plotting the member type average ride duration per week day
+day_member_type_mean_duration_plot <- cleaned_rides %>%  
+  ggplot(aes(x = started_at_week_day, y = trip_duration_minutes, fill = member_casual)) +
+  geom_bar(stat = "summary", fun = "mean") +
+  labs(x = "Week Day", y = "Average Ride Duration in Minutes") +
+  theme_minimal() +
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 75, vjust = 0.5, hjust=0.3)) +
+  easy_remove_legend_title() + 
+  scale_y_continuous(labels = scales::comma_format(big.mark = ',', decimal.mark = '.'))
+
+p2 <- ggplotly(day_member_type_mean_duration_plot)
+```
+<center>
+```{r, out.width = "100%", echo=FALSE, message = FALSE, warning=FALSE}
+subplot(style(p1, showlegend = FALSE), p2, nrows = 1, titleY = TRUE, titleX = TRUE, margin = 0.07, 
+        widths = c(0.5, 0.5)) %>%
+  layout(title = list(text = paste0('Day-of-the-Week Total Number of Rides & Average Ride Duration')), 
+         annotations = list(list(x = 0.2, y = 1.0, text = "Total Rides", xref = "paper", 
+                                 yref = "paper",  xanchor = "center",  yanchor = "bottom", 
+                                 showarrow = FALSE), 
+                            list(x = 0.8, y = 1.0, text = "Avergae Ride Duration", xref = "paper",
+                                 yref = "paper", xanchor = "center", yanchor = "bottom", 
+                                 showarrow = FALSE)),
+         scene = list(aspectmode = "manual", aspectratio=list(x=1,y=1)), 
+         margin = list(t = 150),
+         legend = list(title = list(text = "Rider"), orientation = "h", x = 0.4, y = -0.3))
+```
+</center>
+#### &nbsp;
+#### Day-of-the-week total rides & avergage ride duration reveal the following trends:  
+- Number of  casual rides increases significantly during the weekend. Some of the casual riders also work/study albeit using different means of transportation for those purposes and they probably have less time for casual rides during the week.  
+- Number of member rides stays more or less constant throughout the week with slight increase during the business days and actual decrease during Sunday.  
+Based on the hypothesis they ride more for business and may prefer to rest on Sunday.  
+- Average ride duration stays consistently longer for casual riders with slight increase during the weekend.  
+Since much higher number of riders in this group ride for leisure the weekend change is less significant.   
+ 
+#### &nbsp;  
+### Is there any difference between casual and member riders in utilization of bycicle types?
+
+<center>
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+# Plotting the member types total rides per bicycle type
+ridetype_member_type_rides_plot <- ridetype_member_type_rides %>%  
+  ggplot(aes(x = rideable_type, y = total_rides, fill = member_casual)) +
+  geom_col() +
+  geom_text(aes(label = total_rides), size = 3, position = position_stack(vjust = 0.5)) + 
+  labs(x = "Bike Type", y = "Total Rides") +
+  theme_minimal() +
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 50, vjust = 0.1, hjust=0.3)) +
+  easy_remove_legend_title() + 
+  scale_y_continuous(labels = scales::comma_format(big.mark = ',', decimal.mark = '.'))
+```
+
+```{r, out.width = "70%", fig.asp = 1, echo=FALSE, message = TRUE, warning=FALSE}
+p <- ggplotly(ridetype_member_type_rides_plot) %>% 
+  layout(title = list(text = paste0("Bike Type Per Rider Type", '<br>')),
+         margin = list(t = 150),  
+         legend = list(title = list(text = "Rider"), orientation = "h", x = 0.4, y = -0.2)) %>%
+    style(hoverinfo = "none", traces = c(3, 4)) 
+p
+
+total_classic_bycicle_rides <- sum(ridetype_member_type_rides$total_rides[ridetype_member_type_rides$rideable_type == "classic_bike"])
+
+total_member_classic_bycicle_rides <- ridetype_member_type_rides$total_rides[ridetype_member_type_rides$rideable_type == "classic_bike" & ridetype_member_type_rides$member_casual == "member"]
+
+total_casual_classic_bycicle_rides <- ridetype_member_type_rides$total_rides[ridetype_member_type_rides$rideable_type == "classic_bike" & ridetype_member_type_rides$member_casual == "casual"]
+
+percent_casual_more <- round((total_member_classic_bycicle_rides * 100) / total_classic_bycicle_rides) - round((total_casual_classic_bycicle_rides * 100) / total_classic_bycicle_rides)
+
+```
+</center>
+#### &nbsp;  
+#### From the above chart I can discern the following:  
+- Member riders use classical bikes `r percent_casual_more`% more than casual riders.    
+- There is no significant difference in electric bicycle utilization between member and casual riders.  
+- Relatively insignificant number of riders ride docked bicycle though casual riders use those much more than member ones.
+
+This provides further support for my hypothesis. Since member rides are more for business purpose and are rides are much shorter on average, repeated and "mandatory",  member riders probably utilize whatever bicycle is available even if it is manual.  
+I do not have information how docked bicycle is different from either classic or electric bicycles, nor how the type affects the membership plan, but its usage is negligible. 
+
+### Is there a pattern difference for station usage between the two groups?  
+I will use the ride-start stations, excluding the ones lacking names (or addresses) since coordinates without a station name can not be grouped and thus are not useful here. 
+
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+# Mapping the member types total rides per station
+station_coordinates_no_na <- station_coordinates %>% drop_na(start_station_name)
+station_membertype_rides_map <- leaflet() %>% addTiles() %>% 
+  addCircleMarkers(data = station_coordinates_no_na,
+                   lat = ~start_lat, lng = ~start_lng,
+                   popup = paste(station_coordinates$start_station_name, "<br>",
+                                 "member: ",station_coordinates$total_member_rides, "<br>",
+                                 "casual: ", station_coordinates$total_casual_rides), 
+                   color = r_default_peach,
+                   radius <- findInterval(station_coordinates$total_casual_rides ,c(100,500,2000,4000,6000,8000,10000,12000,14000,16000,18000,20000)) * 2,
+                   stroke = FALSE, 
+                   fillOpacity = 0.8,
+                   group = "casual") %>% 
+  addCircleMarkers(data = station_coordinates_no_na,
+                   lat = ~start_lat, lng = ~start_lng,
+                   popup = paste(station_coordinates$start_station_name, "<br>",
+                                 "member: ",station_coordinates$total_member_rides, "<br>",
+                                 "casual: ", station_coordinates$total_casual_rides), 
+                   color = r_default_cyan,
+                   radius <- findInterval(station_coordinates$total_member_rides ,c(100,500,2000,4000,6000,8000,10000,12000,14000,16000,18000,20000)) * 2,
+                   stroke = FALSE, 
+                   fillOpacity = 0.4,
+                   group = "member") %>%
+  # Legend Layer
+  addLegend("bottomright", colors= c(r_default_cyan), labels=c("member"), group = "member", layerId = "member") %>% 
+  addLegend("bottomright", colors= c(r_default_peach), labels=c("casual"), group = "casual", layerId = "casual") %>% 
+  # Layers control
+  addLayersControl(
+    baseGroups = c("OSM (default)"),
+    overlayGroups = c("member", "casual"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+```
+
+<center>
+```{r, out.width = "100%", fig.asp = 1 , echo=FALSE, message = FALSE, warning=FALSE}
+station_membertype_rides_map
+```
+</center>
+#### &nbsp;  
+#### From the stations-rides map I can observe the following:
+Stations for which the number of casual rides is significantly larger than the number of member rides are located in areas of leisure such as along walking paths near the lake; near parks, museums and other such related destinations.
+Stations for which the opposite is the case are in areas of commerce such as near major transportation centers (probably allowing use of buses/trains to reach farther work places); near business buildings along the river, hospitals, universities and similar. 
+The following shows several examples:
+
+<center>
+```{r, out.width = "80%", fig.asp = 1 , echo=FALSE, message = FALSE, warning=FALSE}
+rides_dominant_group <- c('Casual', 'Casual','Casual','Casual','Casual','Casual',
+                          'Casual','Casual','Casual',
+                          'Member', 'Member', 'Member', 'Member', 'Member', 
+                          'member', 'Member', 'Member')
+
+point_of_interest <- c('Michigen Ave.', 'Theater on the Lake', 'Lake Shore', 'Grunt Park',
+                             'Shedd Acquarium', 'Museum Camous', 'Millenium Park', 'Lincoln Zoo',
+                             'Dusable Harbor',
+                             'Chicago Union Station', 'Ogilie Transportation Center', 
+                             'University of Illinois', 'Institue of Technology', 
+                             'Chicago River Office Buildings', 'Chicago Board of Trade', 
+                             'Northwestern Memorial Hospital', 'Illinois Medical District') 
+
+poi_table <- data.frame(point_of_interest, rides_dominant_group)
+colnames(poi_table) <- c('Point of Interest', 'Dominant Riders Group')
+```
+</center>
+```{r, out.width = "50%", echo=FALSE, message = FALSE, warning=FALSE}
+datatable(poi_table, rownames = FALSE, 
+  options = list(lengthChange = FALSE, info = FALSE, searching=FALSE, filtering='none', pageLength = 17, lengthMenu = 'None', 
+                 paging = FALSE))
+
+``` 
+#### &nbsp;  
+##### The pattern of relationship between points of interest and rider group type supports my hypothesis that leiure riding is more dominant in the casual group while business riding is more dominant in the member group.
+
+I do not have information regarding the current membership pricing - i.e. whether tiers are based on frequency, length of rides and so on. Furthermore, as mentioned previously I do not know how many riders of either group - especially the casual one - are repeated customers. 
+However I can provide some recommendations.
+
+## Share  
+I shared the visuals and my hypothesis regarding the nature of the rides with the stakeholders.  
+I reiterated:  
+
+- the problem that is not enough memberships though total riders is sufficient.  
+
+- the business task that is to convert casual riders into annual members.  
+
+- the analysis goal that is to find trends that shine light on how the two group of riders differ from each either. 
+
+- the hypothesis that majority of rides performed by the casual group is for a leisure purpose while majority of rides performed by the member group is for a business purpose.   
+Where:  
+
+- **leisure** is defined as non regularly repeating activities such as: sightseeing, visiting friends, going to cultural events, recreation and similar;  
+
+- and **business** refers to regularly repeating (and possibly mandatory) activities that typically includes riding to work or school.  
+
+- the missing riders information that is needed to shed more light on the difference between the two group - for example - residents versus visitors.  
+
+The various graphs support my hypothesis and I provided my recommendations accordingly.        
+
+## Act  
+
+### Recommendations  
+
+#### Additional studdies be performed in order to extract missing details that may shed more light on why so many riders are casual and do not purchase annual memberships.  
+
+- Conduct surveys collecting information about features riders - especially casual - like and want to see added.  
+
+- Collect rider identification - while maintaining anonymity - including riding purpose, age range, visitor/resident and so no. This information in conjunction with the ride information will help to identify trends and causality better.  
+
+
+#### Features to be implemented as part of the strategy for converting casual riders to membership riders.     
+
+
+- Tailor membership based on ride length tiers for people who ride less frequently but for longer duration.  
+
+- Add stations near leisure points of interest, sport related locations, visual art, performing art, libraries and such.  
+
+- Develop membership-only apps providing benefits for various leisure activities such as fitness tracker when riding for exercise.  
+
+- As part of membership - provide notifications about performances, lectures, sales and other attractions happening near stations.  
+
+- Form business relationships with various leisure venues requiring tickets to attend events so that discounted tickets (and/or reservation) can be offered as part of membership.  
+
+#### &nbsp;  
+
+<center> 
+# **Thank You!**  
+</center>  
